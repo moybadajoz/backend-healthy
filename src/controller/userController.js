@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken')
 const admin = require('./../config/firebase')
 
 const loginUser = async (req, res) => {
-    console.log('@@@')
     try {
         const { email, password } = req.body
 
@@ -49,7 +48,7 @@ const registerUser = async (req, res) => {
         const hashed = await bcrypt.hash(password, 10)
 
         // Guardar en la DB
-        await admin.firestore().collection('user').doc(email).set({
+        await admin.firestore().collection('users').doc(email).set({
             email,
             password: hashed
         })

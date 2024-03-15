@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const routes = require('./routes/routes')
+const routes = require('./routes/routes.js')
 
 
 // Declarar la variable para el servidor web
@@ -8,7 +8,7 @@ const app = express()
 
 // Middleware
 // app.use(cors())
-app.use(express.json)
+app.use(express.json())
 
 app.use('/', routes)
 
