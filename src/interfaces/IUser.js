@@ -8,7 +8,11 @@ class IUser {
     */
     static async createUser(email, password) { }
     static async findByEmail(email) { }
+    static async getAllUsers() { }
+    static async deleteUser(UserEmail) { }
+    static async updateUser(userEmail, userData) { }
     async verifyPassword(password) { }
+
 }
 
 module.exports = IUser
