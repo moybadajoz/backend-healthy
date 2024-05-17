@@ -18,7 +18,7 @@ class User extends IUser {
     static async createUser(email, password, nombre, apaterno, amaterno, direccion, telefono) {
         try {
             const hash = await bcrypt.hash(password, 10)
-            const user = firestore.collection('users').doc(email)
+            const user = firestore.collection('users').doc()
             await user.set({
                 email,
                 password: hash,
@@ -41,11 +41,11 @@ class User extends IUser {
 
     static async findByEmail(email) {
         try {
-            const user = firestore.collection('users').doc(email)
-            const userDoc = await user.get()
-            if (userDoc.exists) {
-                const userData = userDoc.data()
-                return new User(userData.email, userData.password)
+            const user = await firestore.collection('users').where('email', '==', email).get()
+            
+            if (!user.empty) {
+                const userData = user.docs[0].data()
+                return new User(userData.email, userData.password, userData.nombre)
             }
         } catch (error) {
             console.log('Error => ', error)
