@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
-const registerUser = async (req, res) => {
+const registerPatient = async (req, res) => {
     try {
-        const { email, password, nombre, apaterno, amaterno, direccion, telefono } = req.body
+        console.log(req.body)
+        console.log(req.user)
+        const { email, nombre, apaterno, amaterno, direccion, telefono, sexo, edad } = req.body
+        const { userId } = req.user
         const existingUser = await User.findByEmail(email)
 
         if (existingUser) {

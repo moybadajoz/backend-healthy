@@ -45,7 +45,11 @@ class User extends IUser {
             
             if (!user.empty) {
                 const userData = user.docs[0].data()
-                return new User(userData.email, userData.password, userData.nombre)
+                // console.log(user.docs[0].id)
+                return {
+                    user: new User(userData.email, userData.password, userData.nombre),
+                    userId:  user.docs[0].id
+                    }
             }
         } catch (error) {
             console.log('Error => ', error)
