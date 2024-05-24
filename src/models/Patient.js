@@ -59,6 +59,23 @@ class Patient extends IPatient {
             throw new Error('Error finding user')
         }
     }
+
+    static async getAllPatientsByUser (userId) {
+        try {
+            const patients = await firestore.collection('patients').where('userId', '==', userId).get()
+            const foundPatient = []
+            patients.forEach(doc => {
+                foundPatient.push({
+                    patientId: doc.id,
+                    ...doc.data()
+                })
+            })
+            return foundPatient
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error finding patients')
+        }
+    }
 }
 
 module.exports = Patient

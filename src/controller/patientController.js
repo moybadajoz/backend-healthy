@@ -27,19 +27,21 @@ const registerPatient = async (req, res) => {
     }
 }
 
-// const getAllUsers = async (req, res) => {
-//     try {
-//         const users = await User.getAllUsers()
-//         res.json({
-//             users,
-//             message: 'success'
-//         })
-//     } catch {
-//         res.status(500).json({
-//             message: 'Internal Server Error'
-//         })
-//     }
-// }
+const getAllPatientsByUser = async (req, res) => {
+    try {
+        const { userId } = req.user
+        console.log(userId)
+        const patients = await Patient.getAllPatientsByUser (userId)
+        res.json({
+            patients,
+            message: 'success'
+        })
+    } catch {
+        res.status(500).json({ 
+            message: 'Internal Server Error'
+        })
+    }
+}
 
 // const deleteUser = async (req, res) => {
 //     const userEmail = req.params.email
@@ -72,4 +74,5 @@ const registerPatient = async (req, res) => {
 
 module.exports = { 
     registerPatient, 
+    getAllPatientsByUser
 }
