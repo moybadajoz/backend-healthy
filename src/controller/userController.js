@@ -17,7 +17,7 @@ const loginUser = async (req, res) => {
             })
         }
 
-        console.log(userDoc)
+        // console.log(userDoc)
         // verificar si el password es correcto
         const isValidPass = await userDoc.user.verifyPassword(password)
 
@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
         }
 
         // General el token
-        const token = jwt.sign({ userId: userDoc.userId }, process.env.SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ userId: userDoc.userId }, process.env.SECRET, { expiresIn: '2h' })
         res.status(200).json({ 
             message: 'success',
             token,

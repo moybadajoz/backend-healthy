@@ -30,7 +30,6 @@ const registerPatient = async (req, res) => {
 const getAllPatientsByUser = async (req, res) => {
     try {
         const { userId } = req.user
-        console.log(userId)
         const patients = await Patient.getAllPatientsByUser (userId)
         res.json({
             patients,

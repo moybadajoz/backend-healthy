@@ -76,6 +76,16 @@ class Patient extends IPatient {
             throw new Error('Error finding patients')
         }
     }
+
+    static async getPatientById (id) {
+        try {
+            const patient = await firestore.collection('patients').doc(id).get()
+            return patient
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error finding patient')
+        }
+    }
 }
 
 module.exports = Patient
