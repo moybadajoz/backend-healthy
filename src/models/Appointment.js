@@ -71,15 +71,34 @@ class Appointment extends IAppointment {
         }
     }
 
-    static async findAppointmentConflictByUser (userId, dateTimeStart) {
+    static async findAppointmentConflictByUser (userId, dateTimeStart, dateTimeEnd) {
         try {
-            const appointments = await firestore.collection('appointments')
-                .where('dateTime', "==", dateTimeStart)
+            const conflictStart = await firestore.collection('appointments')
+                .where('dateTimeStart', ">=", dateTimeStart)
+                .where('dateTimeStart', "<=", dateTimeEnd)
                 .where('userId', "==", userId)
                 .get()
-
+            if (conflictStart.docs.length > 0) {
+                return {conflict: true}
+            }
+            const conflictEnd = await firestore.collection('appointments')
+                .where('dateTimeEnd', ">=", dateTimeStart)
+                .where('dateTimeEnd', "<=", dateTimeEnd)
+                .where('userId', "==", userId)
+                .get()
+            if (conflictEnd.docs.length > 0) {
+                return {conflict: true}
+            }
+            const conflictStartEnd = await firestore.collection('appointments')
+                .where('userId', "==", userId)
+                .where('dateTimeStart', "<=", dateTimeStart)
+                .where('dateTimeEnd', ">=", dateTimeEnd)
+                .get()
+            if (conflictStartEnd.docs.length > 0) {
+                return {conflict: true}
+            }
             return {
-                conflict: appointments.docs.length > 0
+                conflict: false
             }
         } catch (error) {
             console.log('Error => ', error)
@@ -87,15 +106,35 @@ class Appointment extends IAppointment {
         }
     }
 
-    static async findAppointmentConflictByPatient (patientId, dateTimeStart) {
+    static async findAppointmentConflictByPatient (patientId, dateTimeStart, dateTimeEnd) {
         try {
-            const appointments = await firestore.collection('appointments')
-                .where('dateTime', "==", dateTimeStart)
-                .where('userId', "==", patientId)
+            const conflictStart = await firestore.collection('appointments')
+                .where('dateTimeStart', ">=", dateTimeStart)
+                .where('dateTimeStart', "<=", dateTimeEnd)
+                .where('patientId', "==", patientId)
                 .get()
+            if (conflictStart.docs.length > 0) {
+                return {conflict: true}
+            }
 
+            const conflictEnd = await firestore.collection('appointments')
+                .where('dateTimeEnd', ">=", dateTimeStart)
+                .where('dateTimeEnd', "<=", dateTimeEnd)
+                .where('patientId', "==", patientId)
+                .get()
+            if (conflictEnd.docs.length > 0) {
+                return {conflict: true}
+            }
+            const conflictStartEnd = await firestore.collection('appointments')
+                .where('dateTimeStart', "<=", dateTimeStart)
+                .where('dateTimeEnd', ">=", dateTimeStart)
+                .where('patientId', "==", patientId)
+                .get()
+            if (conflictStartEnd.docs.length > 0) {
+                return {conflict: true}
+            }
             return {
-                conflic: appointments.docs.length > 0
+                conflict: true
             }
         } catch (error) {
             console.log('Error => ', error)

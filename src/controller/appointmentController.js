@@ -12,14 +12,14 @@ const bookingAppointment = async (req, res) => {
         const newDateTimeStart = new Date(dateTimeStart)
         const newDateTimeEnd = new Date(dateTimeEnd)
         // console.log('@@@ appointment =>\n', patientId, date, time, userId)
-        const conflictByUser = await Appointment.findAppointmentConflictByUser(userId, newDateTimeStart)
+        const conflictByUser = await Appointment.findAppointmentConflictByUser(userId, newDateTimeStart, newDateTimeEnd)
         
         if (conflictByUser.conflict) {
             return res.json({
                 message: "Conflict with the user's schedule"
             })
         }
-        const conflictByPatient = await Appointment.findAppointmentConflictByPatient(patientId, newDateTimeStart)
+        const conflictByPatient = await Appointment.findAppointmentConflictByPatient(patientId, newDateTimeStart, newDateTimeEnd)
         if (conflictByPatient.conflict) {
             return res.json({
                 message: "Conflict with the patient's schedule"
