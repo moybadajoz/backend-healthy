@@ -80,8 +80,31 @@ const nextAppointment = async (req, res) => {
     }
 }
 
+const cancelAppointment = async (req, res) => {
+    try {
+        const { id } = req.params
+        // const { userId } = req.user
+        const status = await Appointment.cancelAppt(id)
+        // console.log('@')
+        if (status.status === 0){
+            return res.json({
+                message: "Success"
+            })
+        }
+        return res.json({
+            message: "SWW"
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     bookingAppointment,
     getAppointments,
-    nextAppointment
+    nextAppointment,
+    cancelAppointment
 }

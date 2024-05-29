@@ -60,6 +60,7 @@ class Appointment extends IAppointment {
             const docs = []
             appointments.docs.forEach((doc) => {
                 docs.push({
+                    apptId: doc.id,
                     ...doc.data()
                 })
             })
@@ -115,6 +116,7 @@ class Appointment extends IAppointment {
                 .where('patientId', "==", patientId)
                 .get()
             if (conflictStart.docs.length > 0) {
+                console.log('@')
                 return {conflict: true}
             }
 
@@ -124,6 +126,7 @@ class Appointment extends IAppointment {
                 .where('patientId', "==", patientId)
                 .get()
             if (conflictEnd.docs.length > 0) {
+                console.log('@@')
                 return {conflict: true}
             }
             const conflictStartEnd = await firestore.collection('appointments')
@@ -132,10 +135,11 @@ class Appointment extends IAppointment {
                 .where('patientId', "==", patientId)
                 .get()
             if (conflictStartEnd.docs.length > 0) {
+                console.log('@@@')
                 return {conflict: true}
             }
             return {
-                conflict: true
+                conflict: false
             }
         } catch (error) {
             console.log('Error => ', error)
@@ -176,6 +180,21 @@ class Appointment extends IAppointment {
 
         } catch {
             throw new Error('Error finding next appointment')
+        }
+    }
+
+    static async cancelAppt (id) {
+        try {
+            const data = {
+                state: 'Canceled'
+            }
+            await firestore.collection('appointments').doc(id).update(data)
+            return {
+                status: 0
+            }
+        } catch (error) {
+            console.log(error)
+            throw new Error('Error cancel appt')
         }
     }
 }
