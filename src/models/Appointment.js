@@ -5,17 +5,17 @@ const firestore = admin.firestore()
 const Patient = require('../models/Patient')
 
 class Appointment extends IAppointment {
-    constructor(patientId, dateTimeStart, dateTimeEnd, notes, userId) {
+    constructor(patientId, dateTimeStart, dateTimeEnd, notes, userId, state) {
         super()
         this.patientId = patientId
         this.dateTimeStart = dateTimeStart
         this.dateTimeEnd = dateTimeEnd
         this.notes = notes
         this.userId = userId
-        //agrega si la cita ya se completo o no
+        this.state = state
     }
 
-    static async bookingAppointment (patientId, dateTimeStart, dateTimeEnd, notes, userId) {
+    static async bookingAppointment (patientId, dateTimeStart, dateTimeEnd, notes, userId, state) {
         try {
             const appointment = firestore.collection('appointments').doc()
             await appointment.set({
@@ -23,9 +23,10 @@ class Appointment extends IAppointment {
                 dateTimeStart,
                 dateTimeEnd,
                 notes,
-                userId
+                userId,
+                state
             })
-            return new Appointment(patientId, dateTimeStart, dateTimeEnd, notes, userId)
+            return new Appointment(patientId, dateTimeStart, dateTimeEnd, notes, userId, state)
         } catch (error) {
             console.log('Error => ', error)
             throw new Error('Error creating user')
@@ -145,6 +146,7 @@ class Appointment extends IAppointment {
     static async getPatientDetails (appointments) {
         try {
             const newAppointment = []
+            // console.log(appointments)
             for (const doc of appointments.docs) {
                 const patientDetails = (await Patient.getPatientById(doc.patientId)).data()
                 newAppointment.push({
@@ -155,6 +157,25 @@ class Appointment extends IAppointment {
             return newAppointment
         } catch (error) {
             throw new Error('Error getting details')
+        }
+    }
+
+    static async getNextAppointment (userId, time) {
+        try {
+            const appointments = await firestore.collection('appointments')
+                .where('userId', '==', userId)
+                .where('dateTimeStart', '>=', time)
+                .get()
+            console.log(appointments.docs)
+            if (appointments.docs.length > 0){
+                const docsDetails = await this.getPatientDetails({docs: [appointments.docs[0].data()]})
+                // const doc = docsDetails
+                return docsDetails[0]
+            }
+            return {err: 'empty'}
+
+        } catch {
+            throw new Error('Error finding next appointment')
         }
     }
 }

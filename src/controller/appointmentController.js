@@ -25,7 +25,7 @@ const bookingAppointment = async (req, res) => {
                 message: "Conflict with the patient's schedule"
             })
         }
-        const newAppointment = await Appointment.bookingAppointment(patientId, newDateTimeStart, newDateTimeEnd, notes, userId)
+        const newAppointment = await Appointment.bookingAppointment(patientId, newDateTimeStart, newDateTimeEnd, notes, userId, 'Booking')
         return res.json({
             appoinment: newAppointment,
             message: 'Successful'
@@ -59,7 +59,29 @@ const getAppointments = async (req, res) => {
     }
 }
 
+const nextAppointment = async (req, res) => {
+    try {
+        const { now } = req.params
+        const { userId } = req.user
+
+        const time = new Date(now)
+
+        const appointment = await Appointment.getNextAppointment(userId, time)
+
+        return res.status(200).json({
+            message: 'Success',
+            appointment: appointment
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     bookingAppointment,
-    getAppointments
+    getAppointments,
+    nextAppointment
 }
