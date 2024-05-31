@@ -169,10 +169,11 @@ class Appointment extends IAppointment {
             const appointments = await firestore.collection('appointments')
                 .where('userId', '==', userId)
                 .where('dateTimeStart', '>=', time)
+                .where('state', "==", 'Booking')
                 .get()
-            console.log(appointments.docs)
             if (appointments.docs.length > 0){
                 const docsDetails = await this.getPatientDetails({docs: [appointments.docs[0].data()]})
+                docsDetails[0].apptId = appointments.docs[0].id
                 // const doc = docsDetails
                 return docsDetails[0]
             }
@@ -195,6 +196,16 @@ class Appointment extends IAppointment {
         } catch (error) {
             console.log(error)
             throw new Error('Error cancel appt')
+        }
+    }
+
+    static async updateAppt (id, data) {
+        try {
+            await firestore.collection('appointments').doc(id).update(data)
+            return { a: 0 }
+        } catch (error) {
+            console.log(error)
+            throw error
         }
     }
 }

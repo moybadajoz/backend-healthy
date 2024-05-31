@@ -3,6 +3,7 @@ const Appointment = require('../models/Appointment')
 const User = require('../models/User')
 const { config } = require('dotenv')
 const { messaging, app } = require('firebase-admin')
+const { updateUser } = require('../interfaces/IUser')
 
 const bookingAppointment = async (req, res) => {
     try {
@@ -102,9 +103,50 @@ const cancelAppointment = async (req, res) => {
     }
 }
 
+const rescheduleAppt = async(req, res) => {
+    try {
+        const { patientId, dateTimeStart, dateTimeEnd, notes } = req.body
+        const { userId } = req.user
+        const { id } = req.params
+        // console.log(dateTimeStart)
+        const newDateTimeStart = new Date(dateTimeStart)
+        const newDateTimeEnd = new Date(dateTimeEnd)
+        // console.log('@@@ appointment =>\n', patientId, date, time, userId)
+        const conflictByUser = await Appointment.findAppointmentConflictByUser(userId, newDateTimeStart, newDateTimeEnd)
+        
+        if (conflictByUser.conflict) {
+            return res.json({
+                message: "Conflict with the user's schedule"
+            })
+        }
+        const conflictByPatient = await Appointment.findAppointmentConflictByPatient(patientId, newDateTimeStart, newDateTimeEnd)
+        if (conflictByPatient.conflict) {
+            return res.json({
+                message: "Conflict with the patient's schedule"
+            })
+        }
+        const data = {
+            dateTimeStart: newDateTimeStart,
+            dateTimeEnd: newDateTimeEnd,
+            notes: notes
+        }
+        await Appointment.updateAppt(id, data)
+        return res.json({
+            message: 'Successful'
+        })
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Internal Server Error',
+        })
+    }
+}
+
 module.exports = {
     bookingAppointment,
     getAppointments,
     nextAppointment,
-    cancelAppointment
+    cancelAppointment,
+    rescheduleAppt
 }
