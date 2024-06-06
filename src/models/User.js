@@ -57,6 +57,19 @@ class User extends IUser {
         }
     }
 
+    static async findById(id) {
+        try {
+            const user = await firestore.collection('users').doc(id).get()
+            // console.log('@@ => ', user.data())
+            return {
+                user: user.data()
+            }
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error finding user')
+        }
+    }
+
     static async getAllUsers() {
         try {
             const users = await firestore.collection('users').get()

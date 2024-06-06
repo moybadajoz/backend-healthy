@@ -12,7 +12,7 @@ const loginUser = async (req, res) => {
 
         // Si no existe el usuario
         if (!userDoc) {
-            return res.status(404).json({
+            return res.json({
                 message: 'User not found'
             })
         }
@@ -22,7 +22,7 @@ const loginUser = async (req, res) => {
         const isValidPass = await userDoc.user.verifyPassword(password)
 
         if (!isValidPass) {
-            return res.status(401).json({
+            return res.json({
                 message: 'Invalid Credentials'
             })
         }

@@ -143,10 +143,70 @@ const rescheduleAppt = async(req, res) => {
     }
 }
 
+const appointmentComplete = async(req, res) => {
+    try {
+        const { comments, treatment, prescription } = req.body
+        const { id } = req.params
+
+        const data = {
+            comments,
+            treatment,
+            prescription,
+            state: 'Complete'
+        }
+
+        await Appointment.updateAppt(id, data)
+        return res.json({
+            message: 'success'
+        })
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Internal Server Error',
+        })
+    }
+}
+
+const getAppointmentsByPatient = async(req, res) => {
+    try {    
+        const { id } = req.params
+        const appointments = await Appointment.getAllAppointmentsByPatient(id)
+        return res.json({
+            message: 'success',
+            appointments: appointments.appointments
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Internal Server Error'
+        })
+    }
+}
+
+const getAppointmentById = async (req, res) => {
+    try {
+        const { id } = req.params
+        const appoinment = await Appointment.getAppointmentById(id)
+        return res.json({
+            message: 'success',
+            appt: appoinment.appointment
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     bookingAppointment,
     getAppointments,
     nextAppointment,
     cancelAppointment,
-    rescheduleAppt
+    rescheduleAppt,
+    appointmentComplete,
+    getAppointmentsByPatient,
+    getAppointmentById
 }

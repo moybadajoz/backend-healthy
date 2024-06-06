@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const IAppointment = require('../interfaces/IAppointment')
 const firestore = admin.firestore()
 const Patient = require('../models/Patient')
+const User = require('../models/User')
 
 class Appointment extends IAppointment {
     constructor(patientId, dateTimeStart, dateTimeEnd, notes, userId, state) {
@@ -13,6 +14,9 @@ class Appointment extends IAppointment {
         this.notes = notes
         this.userId = userId
         this.state = state
+        this.comments = ''
+        this.treatment = ''
+        this.prescription = ''
     }
 
     static async bookingAppointment (patientId, dateTimeStart, dateTimeEnd, notes, userId, state) {
@@ -179,7 +183,8 @@ class Appointment extends IAppointment {
             }
             return {err: 'empty'}
 
-        } catch {
+        } catch (error) {
+            console.log(error)
             throw new Error('Error finding next appointment')
         }
     }
@@ -206,6 +211,54 @@ class Appointment extends IAppointment {
         } catch (error) {
             console.log(error)
             throw error
+        }
+    }
+
+    static async getAllAppointmentsByPatient (id) {
+        try {
+            // console.log(id)
+            const appointments = await firestore.collection('appointments')
+                .where('patientId', "==", id)
+                .where('state', '==', 'Complete')
+                .get()
+            // console.log(appointments.docs.length)
+            const newAppointments = []
+            // console.log(appointments)
+            for (const doc of appointments.docs) {
+                // console.log('@@@ => ',doc.data().userId)
+                const details = (await User.findById(doc.data().userId)).user
+                newAppointments.push({
+                    user: details,
+                    ...doc.data(),
+                    apptId: doc.id
+                })
+            }
+            
+            return {
+                appointments: newAppointments
+            }
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error getting appointments')
+        }
+    }
+
+    static async getAppointmentById (id) {
+        try {
+            const appointment = await firestore.collection('appointments').doc(id).get()
+            const appt = {
+                user: (await User.findById(appointment.data().userId)).user,
+                patient: (await Patient.getPatientById(appointment.data().patientId)).data(),
+                apptId: appointment.id,
+                ...appointment.data()
+            }
+            
+            return {
+                appointment: appt
+            }
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error getting appointments')
         }
     }
 }
