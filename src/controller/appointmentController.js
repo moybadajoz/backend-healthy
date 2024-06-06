@@ -145,13 +145,14 @@ const rescheduleAppt = async(req, res) => {
 
 const appointmentComplete = async(req, res) => {
     try {
-        const { comments, treatment, prescription } = req.body
+        const { comments, treatment, prescription, payment } = req.body
         const { id } = req.params
 
         const data = {
             comments,
             treatment,
             prescription,
+            payment,
             state: 'Complete'
         }
 

@@ -17,6 +17,7 @@ class Appointment extends IAppointment {
         this.comments = ''
         this.treatment = ''
         this.prescription = ''
+        this.payment = 0
     }
 
     static async bookingAppointment (patientId, dateTimeStart, dateTimeEnd, notes, userId, state) {
