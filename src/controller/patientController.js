@@ -1,22 +1,24 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const Patient = require('../models/Patient')
 
-const registerUser = async (req, res) => {
+const registerPatient = async (req, res) => {
     try {
-        const { email, password, nombre, apaterno, amaterno, direccion, telefono } = req.body
-        const existingUser = await User.findByEmail(email)
+        const { email, nombre, apaterno, amaterno, direccion, telefono, sexo, edad } = req.body
+        const { userId } = req.user
 
-        if (existingUser) {
+        const existingPatient = await Patient.findPatientByEmail(email, userId)
+        // console.log(existingPatient)
+        if (existingPatient) {
             return res.status(400).json({
-                message: 'User already exist'
+                message: 'Patient already exist'
             })
         }
-
-        const newUser = await User.createUser(email, password, nombre, apaterno, amaterno, direccion, telefono)
+        const newPatient = await Patient.createPatient(nombre, apaterno, amaterno, edad, sexo, email, telefono, direccion, userId)
 
         res.status(201).json({
-            message: 'User registered successfully',
-            user: newUser
+            message: 'Patient registered successfully',
+            user: newPatient
         })
     } catch {
         res.status(500).json({
@@ -25,49 +27,43 @@ const registerUser = async (req, res) => {
     }
 }
 
-const getAllUsers = async (req, res) => {
+const getAllPatientsByUser = async (req, res) => {
     try {
-        const users = await User.getAllUsers()
+        const { userId } = req.user
+        const patients = await Patient.getAllPatientsByUser (userId)
         res.json({
-            users,
+            patients,
             message: 'success'
         })
     } catch {
-        res.status(500).json({
+        res.status(500).json({ 
             message: 'Internal Server Error'
         })
     }
 }
 
-const deleteUser = async (req, res) => {
-    const userEmail = req.params.email
+const getPatient = async (req, res) => {
     try {
-        await User.deleteUser(userEmail)
-        res.status(204).send()
-    } catch {
-        res.status(500).json({
-            message: 'Internal Server Error'
-        })
-    }
-}
+        const { id } = req.params
 
-const updateUser = async (req, res) => {
-    const userEmail = req.params.email
-    const userData = req.body
-    try {
-        const userUpdated = await User.updateUser(userEmail, userData)
+        const patient = await Patient.getPatientById(id)
         res.json({
-            userUpdated,
+            patient: patient.data(),
             message: 'success'
         })
-    } catch {
-        res.status(500).json({
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ 
             message: 'Internal Server Error'
         })
     }
+
 }
+
 
 
 module.exports = { 
     registerPatient, 
+    getAllPatientsByUser,
+    getPatient
 }

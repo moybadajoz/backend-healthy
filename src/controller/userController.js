@@ -12,29 +12,29 @@ const loginUser = async (req, res) => {
 
         // Si no existe el usuario
         if (!userDoc) {
-            return res.status(404).json({
+            return res.json({
                 message: 'User not found'
             })
         }
 
+        // console.log(userDoc)
         // verificar si el password es correcto
-        const isValidPass = await userDoc.verifyPassword(password)
+        const isValidPass = await userDoc.user.verifyPassword(password)
 
         if (!isValidPass) {
-            return res.status(401).json({
+            return res.json({
                 message: 'Invalid Credentials'
             })
         }
 
         // General el token
-        const token = jwt.sign({ email: userDoc.email }, process.env.SECRET, { expiresIn: '1h' })
-        console.log(userDoc)
+        const token = jwt.sign({ userId: userDoc.userId }, process.env.SECRET, { expiresIn: '2h' })
         res.status(200).json({ 
             message: 'success',
             token,
             user: {
-                email: userDoc.email,
-                name: userDoc.nombre
+                email: userDoc.user.email,
+                name: userDoc.user.nombre
             }
         })
 

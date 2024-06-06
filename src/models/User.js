@@ -45,7 +45,24 @@ class User extends IUser {
             
             if (!user.empty) {
                 const userData = user.docs[0].data()
-                return new User(userData.email, userData.password, userData.nombre)
+                // console.log(user.docs[0].id)
+                return {
+                    user: new User(userData.email, userData.password, userData.nombre),
+                    userId:  user.docs[0].id
+                    }
+            }
+        } catch (error) {
+            console.log('Error => ', error)
+            throw new Error('Error finding user')
+        }
+    }
+
+    static async findById(id) {
+        try {
+            const user = await firestore.collection('users').doc(id).get()
+            // console.log('@@ => ', user.data())
+            return {
+                user: user.data()
             }
         } catch (error) {
             console.log('Error => ', error)
